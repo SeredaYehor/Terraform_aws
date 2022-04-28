@@ -1,5 +1,5 @@
 variable "key_name" {
-  default = "h3av3nG4t3"
+  default = "your_ssh_access_key_name"
 }
 
 variable "vpc_id" {
