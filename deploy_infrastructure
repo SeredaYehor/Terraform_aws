@@ -1,0 +1,16 @@
+#!/bin/bash
+
+terraform init
+terraform plan
+terraform apply -auto-approve -target=module.virtual_cloud -target=module.application -target=module.storage -target=module.instances.aws_instance.vpn_server
+
+terraform apply -auto-approve -target=module.instances.aws_instance.vpn_server
+while [ -n `aws s3 cp s3://terr-nextcloud-bucket/client.ovpn .` ];
+do
+  sleep 10
+done
+
+terraform apply -auto-approve -target=module.instances
+
+sudo cp client.ovpn /etc/openvpn/client/client.conf
+sudo systemctl start openvpn-client@client

@@ -1,44 +1,21 @@
 #!/bin/bash
 
 sudo apt-get update
-sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
-sudo curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
-sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-sudo apt-get update
-sudo apt-get install -y docker-ce
-sudo usermod -aG docker ubuntu
-sudo curl -L https://github.com/docker/compose/releases/download/1.21.0/docker-compose-$(uname -s)-$(uname -m) -o /usr/local/bin/docker-compose
-sudo chmod +x /usr/local/bin/docker-compose
-sudo systemctl enable docker
-sudo systemctl start docker
+sudo apt-get install -y openvpn awscli
+curl -fsSL https://get.docker.com -o get-docker.sh
+sh get-docker.sh
 
-wget https://raw.githubusercontent.com/SeredaYehor/Terraform_aws/main/nginx.conf
-touch docker-compose.yml
-cat << EOF > docker-compose.yml
-version: '2'
+aws s3 cp s3://terr-nextcloud-bucket/nextcloud.ovpn .
+aws s3 cp s3://terr-nextcloud-bucket/docker-compose.yml .
+aws s3 cp s3://terr-nextcloud-bucket/nginx.conf .
 
-volumes:
-  nextcloud:
+cp nextcloud.ovpn /etc/openvpn/client/nextcloud.conf
+sudo systemctl start openvpn-client@nextcloud
 
-services:
-  app:
-    image: nextcloud:fpm
-    restart: always
-    volumes:
-      - nextcloud:/var/www/html
+vpn_ip=`ip -f inet addr show tun0  | awk '/inet / {print $2}' | cut -d/ -f1`
+sed -i "s/{{ ip }}/${vpn_ip}/g" docker-compose.yml
 
-  web:
-    image: nginx
-    restart: always
-    ports:
-      - 80:80
-    links:
-      - app
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-    volumes_from:
-      - app
-EOF
+sudo docker compose up -d
 
-docker-compose up -d
-echo "Done"
+
+
