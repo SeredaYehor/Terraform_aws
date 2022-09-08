@@ -8,7 +8,7 @@ vpn_enabled=`cat variables.tf | grep "true"`
 
 if [ ! -z "${vpn_enabled}" ];
 then
-   terraform apply -auto-approve -target=module.instances.aws_security_group.vpn_sg[0] -target=module.instances.aws_instance.vpn_server
+   terraform apply -auto-approve -target=module.instances.aws_instance.vpn_server
    while [ -n `aws s3 cp s3://terr-nextcloud-bucket/client.ovpn .` ];
    do
      sleep 10
