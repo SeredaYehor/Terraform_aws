@@ -1,0 +1,13 @@
+#!/bin/bash
+
+sudo apt update
+sudo apt install -y docker-compose awscli
+curl -fsSL https://get.docker.com -o get-docker.sh
+sh get-docker.sh
+
+aws s3 cp s3://terr-nextcloud-bucket/docker-compose.yml .
+aws s3 cp s3://terr-nextcloud-bucket/nginx.conf .
+
+sed -i "s/{{ ip }}/0.0.0.0/g" docker-compose.yml
+
+docker-compose up -d
