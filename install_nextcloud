@@ -11,7 +11,7 @@ aws s3 cp s3://terr-nextcloud-bucket/nginx.conf .
 
 cp nextcloud.ovpn /etc/openvpn/client/nextcloud.conf
 sudo systemctl start openvpn-client@nextcloud
-
+sleep 5
 vpn_ip=`ip -f inet addr show tun0  | awk '/inet / {print $2}' | cut -d/ -f1`
 sed -i "s/{{ ip }}/${vpn_ip}/g" docker-compose.yml
 
