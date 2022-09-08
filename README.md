@@ -1,7 +1,7 @@
 # Nextcloud aws terraform project
 
-This project was created with the aim to easily deploy 
-nextcloud server under secure network using https and openvpn.
+This project was created with the purpose to easily deploy 
+nextcloud server with mysql database under secure network using https and openvpn.
 
 
 ## Deploying guide
@@ -11,7 +11,7 @@ variables in **variables.tf** file, where:
 
 > key_name - ssh key for connecting to instances;
 >
-> vpn_mmode - setting infrastructure to work under openvpn. This variable accepts only true/false values;
+> vpn_mode - setting infrastructure to work under openvpn. This variable accepts only true/false values;
 >
 > certificate - arn of aws ssl certificate;
 >
