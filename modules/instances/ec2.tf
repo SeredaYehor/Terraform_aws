@@ -2,7 +2,7 @@ resource "aws_instance" "nextcloud" {
   ami 			 = "ami-0fb653ca2d3203ac1"
   instance_type 	 = "t2.micro"
   vpc_security_group_ids = [var.nextcloud_sg_id, var.lb_sg_id]
-  user_data		 = "${file("install_nextcloud")}" 
+  user_data		 = var.vpn_mode == "true" ? "${file("install_nextcloud")}" : "${file("install_nextcloud_no_vpn")}"
   subnet_id 		 = var.private_sub_id
   key_name 		 = var.key_name
   iam_instance_profile   = var.iam_role
@@ -13,10 +13,10 @@ resource "aws_instance" "nextcloud" {
 }
 
 resource "aws_instance" "vpn_server" {
-  count                 = var.vpn_mode == "true" ? 1 : 0
+  count                  = var.vpn_mode == "true" ? 1 : 0
   ami                    = "ami-0fb653ca2d3203ac1"
   instance_type          = "t2.micro"
-  vpc_security_group_ids = [var.vpn_sg_id]
+  vpc_security_group_ids = [aws_security_group.vpn_sg[count.index].id]
   subnet_id              = var.public_sub_id
   key_name               = var.key_name
   iam_instance_profile   = var.iam_role
