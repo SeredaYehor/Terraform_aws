@@ -1,29 +1,45 @@
 #!/bin/bash
 mkdir /init_server
 cd /init_server
-sudo apt-get update
-sudo apt-get install -y openvpn expect awscli
+sudo apt update
+sudo apt install -y openvpn expect awscli
 curl -fsSL https://get.docker.com -o get-docker.sh
 sh get-docker.sh
 
-publicIP=`dig +short myip.opendns.com @resolver1.opendns.com`
-aws s3 cp  s3://terr-nextcloud-bucket/setupVPN.sh .
-aws s3 cp  s3://terr-nextcloud-bucket/addVPNUser.sh .
-aws s3 cp  s3://terr-nextcloud-bucket/ExpectSetupVPN .
-aws s3 cp  s3://terr-nextcloud-bucket/ExpectAddUserVPN .
-aws s3 cp  s3://terr-nextcloud-bucket/openvpn.conf .
+declare -a files=("setupVPN.sh" "addVPNUser.sh" "ExpectSetupVPN" "ExpectAddUserVPN" "openvpn.conf")
 
+for file in "${files[@]}"
+do
+   aws s3 cp  s3://terr-nextcloud-bucket/$file .
+done
+
+
+publicIP=`dig +short myip.opendns.com @resolver1.opendns.com`
+#aws s3 cp  s3://terr-nextcloud-bucket/setupVPN.sh .
+#aws s3 cp  s3://terr-nextcloud-bucket/addVPNUser.sh .
+#aws s3 cp  s3://terr-nextcloud-bucket/ExpectSetupVPN .
+#aws s3 cp  s3://terr-nextcloud-bucket/ExpectAddUserVPN .
+#aws s3 cp  s3://terr-nextcloud-bucket/openvpn.conf .
 
 sed -i "s/{{ host }}/${publicIP}/g" openvpn.conf
 sudo chmod +x setupVPN.sh addVPNUser.sh ExpectSetupVPN ExpectAddUserVPN
 
-
 ./ExpectSetupVPN 1234567890
-./ExpectAddUserVPN client 1234567890
-./ExpectAddUserVPN nextcloud 1234567890
 
-sed -i '/redirect-gateway def1/d' nextcloud.ovpn
-sed -i '/redirect-gateway def1/d' client.ovpn
+for key in "client" "nextcloud"
+do
+   ./ExpectAddUserVPN $key 1234567890
+   sed -i '/redirect-gateway def1/d' $key.ovpn
+   aws s3 cp $key.ovpn s3://terr-nextcloud-bucket/
+done
 
-aws s3 cp nextcloud.ovpn s3://terr-nextcloud-bucket/
-aws s3 cp client.ovpn s3://terr-nextcloud-bucket/
+
+
+#./ExpectAddUserVPN client 1234567890
+#./ExpectAddUserVPN nextcloud 1234567890
+
+#sed -i '/redirect-gateway def1/d' nextcloud.ovpn
+#sed -i '/redirect-gateway def1/d' client.ovpn
+
+#aws s3 cp nextcloud.ovpn s3://terr-nextcloud-bucket/
+#aws s3 cp client.ovpn s3://terr-nextcloud-bucket/

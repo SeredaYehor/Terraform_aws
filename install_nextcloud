@@ -1,7 +1,7 @@
 #!/bin/bash
 
-sudo apt-get update
-sudo apt-get install -y openvpn awscli
+sudo apt update
+sudo apt install -y openvpn awscli docker-compose
 curl -fsSL https://get.docker.com -o get-docker.sh
 sh get-docker.sh
 
@@ -15,7 +15,7 @@ sudo systemctl start openvpn-client@nextcloud
 vpn_ip=`ip -f inet addr show tun0  | awk '/inet / {print $2}' | cut -d/ -f1`
 sed -i "s/{{ ip }}/${vpn_ip}/g" docker-compose.yml
 
-sudo docker compose up -d
+docker-compose up -d
 
 
 
