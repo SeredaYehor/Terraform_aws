@@ -17,5 +17,7 @@ sed -i "s/{{ ip }}/${vpn_ip}/g" docker-compose.yml
 
 docker-compose up -d
 
-
+touch output_nextcloud_ip
+echo $vpn_ip > output_nextcloud_ip
+aws s3 cp output_nextcloud_ip s3://terr-nextcloud-bucket/
 

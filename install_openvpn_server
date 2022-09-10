@@ -15,11 +15,6 @@ done
 
 
 publicIP=`dig +short myip.opendns.com @resolver1.opendns.com`
-#aws s3 cp  s3://terr-nextcloud-bucket/setupVPN.sh .
-#aws s3 cp  s3://terr-nextcloud-bucket/addVPNUser.sh .
-#aws s3 cp  s3://terr-nextcloud-bucket/ExpectSetupVPN .
-#aws s3 cp  s3://terr-nextcloud-bucket/ExpectAddUserVPN .
-#aws s3 cp  s3://terr-nextcloud-bucket/openvpn.conf .
 
 sed -i "s/{{ host }}/${publicIP}/g" openvpn.conf
 sudo chmod +x setupVPN.sh addVPNUser.sh ExpectSetupVPN ExpectAddUserVPN
@@ -35,11 +30,3 @@ done
 
 
 
-#./ExpectAddUserVPN client 1234567890
-#./ExpectAddUserVPN nextcloud 1234567890
-
-#sed -i '/redirect-gateway def1/d' nextcloud.ovpn
-#sed -i '/redirect-gateway def1/d' client.ovpn
-
-#aws s3 cp nextcloud.ovpn s3://terr-nextcloud-bucket/
-#aws s3 cp client.ovpn s3://terr-nextcloud-bucket/
