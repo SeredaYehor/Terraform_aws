@@ -23,11 +23,14 @@ if [ ! -z "${vpn_enabled}" ];
 then
    sudo cp client.ovpn /etc/openvpn/client/client.conf
    sudo systemctl start openvpn-client@client
-   bastion=`terraform output bastion_ip | tr -d '\"'`
-   nextcloud=`terraform output nextcloud_ip | tr -d '\"'`
-   vpn_nextcloud_ip=`ssh -A ubuntu@$bastion -t ssh  ubuntu@$nextcloud "ip -f inet addr show tun0  | awk '/inet /{print $2}'"`
-   echo "VPN ip address of nextcloud server"
-   echo $vpn_nextcloud_ip | awk '{print $2}'
+   while [ -n `aws s3 cp s3://terr-nextcloud-bucket/output_nextcloud_ip .` ];
+   do
+     sleep 10
+   done
+   nextcloud_private_ip=`cat output_nextcloud_ip`
+   rm output_nextcloud_ip
+   echo "Private vpn ip of nextcloud: ${nextcloud_private_ip}"
 fi
 
 terraform output
+echo "Finished deploying nextcloud"
